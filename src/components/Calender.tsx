@@ -158,7 +158,8 @@ export default function Calendars({ packages }: { packages: IPackage }) {
         start_point: start,
         end_point: end,
         date: convertDateToYYYYMMDD(selectedDate),
-        totalAmount: .10,
+        totalAmount,
+        processing_fee: processingFee,
         user: userInfo,
       };
       const bookings = (await addBooking(booking)) as any;
@@ -207,7 +208,8 @@ export default function Calendars({ packages }: { packages: IPackage }) {
   useEffect(() => {
     if (bookingDetailsOfSelectedDate) {
       const isDifferentTypeBookingExist = (bookingDetailsOfSelectedDate as any)?.data?.find((booking: any) => booking?.package?.is_private === !packages?.is_private)
-      if (isDifferentTypeBookingExist) {
+      const isAnyPrivateBookingExist = (bookingDetailsOfSelectedDate as any)?.data?.find((booking: any) => booking?.package?.is_private === true)
+      if (isDifferentTypeBookingExist || (isAnyPrivateBookingExist && packages?.is_private)) {
         setSelectedDayIsAlreadyBooked(true);
       } else {
         setSelectedDayIsAlreadyBooked(false);
@@ -423,8 +425,7 @@ export default function Calendars({ packages }: { packages: IPackage }) {
               <p className="text-lg">Subtotal -</p>
               <p className="text-xl font-medium">
                 <span className="text-sm">$</span>
-                {subTotal.toFixed(2)}
-                { }
+                {remainingSeats <= 0 ? 0 : subTotal.toFixed(2)}
               </p>
             </div>
 
@@ -432,7 +433,7 @@ export default function Calendars({ packages }: { packages: IPackage }) {
             <div className="flex justify-end items-end gap-10 py-3 w-full border-b-[2px]">
               <p className="text-lg">Processing Fee -</p>
               <p className="font-medium">
-                <span className="text-sm">$</span> {processingFee.toFixed(2)}
+                <span className="text-sm">$</span> {remainingSeats <= 0 ? 0 : processingFee.toFixed(2)}
               </p>
             </div>
 
@@ -441,14 +442,14 @@ export default function Calendars({ packages }: { packages: IPackage }) {
               <p className="text-lg">Total -</p>
               <p className="text-5xl font-bold text-cyan-500">
                 <span className="text-3xl font-medium">$</span>
-                {totalAmount.toFixed(2)}
+                {remainingSeats <= 0 ? 0 : totalAmount.toFixed(2)}
               </p>
             </div>
 
             {/* Pay Now button */}
             <div className="flex justify-end items-end gap-10 py-3 w-full">
               <div className="bg-cyan-400 flex flex-col items-center justify-center rounded-2xl text-white font-bold px-10  py-3">
-                <button className="text-2xl" onClick={handleBooking}>
+                <button className="text-2xl" onClick={handleBooking} disabled={remainingSeats <= 0}>
                   Pay Now
                 </button>
               </div>
