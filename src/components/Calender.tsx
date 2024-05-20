@@ -40,6 +40,7 @@ export default function Calendars({ packages }: { packages: IPackage }) {
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [toggleDate, setToggleData] = useState(false);
   const [remainingSeats, setRemainingSeats] = useState(0);
+  const [currentRemainingSeats, setCurrentRemainingSeats] = useState(0);
   const [location_id, setLocationId] = useState({
     start_point_id: "",
     end_point_id: "",
@@ -111,10 +112,10 @@ export default function Calendars({ packages }: { packages: IPackage }) {
     return remainder === 1 && day !== 11
       ? suffixes[0]
       : remainder === 2 && day !== 12
-      ? suffixes[1]
-      : remainder === 3 && day !== 13
-      ? suffixes[2]
-      : suffixes[3];
+        ? suffixes[1]
+        : remainder === 3 && day !== 13
+          ? suffixes[2]
+          : suffixes[3];
   }
 
   const handleValidityCheck = () => {
@@ -148,7 +149,7 @@ export default function Calendars({ packages }: { packages: IPackage }) {
         start_point: start,
         end_point: end,
         date: convertDateToYYYYMMDD(selectedDate),
-        totalAmount,
+        totalAmount: .10,
         user: userInfo,
       };
       const bookings = (await addBooking(booking)) as any;
@@ -171,9 +172,11 @@ export default function Calendars({ packages }: { packages: IPackage }) {
       childCount * (childPrice ?? 0) + adultCount * (adultPrice ?? 0);
     const _processingFee = _subTotal * 0.0385;
     setSubTotal(_subTotal);
+    console.log(remainingSeats, adultCount, childCount, 1234);
+    setCurrentRemainingSeats(remainingSeats - adultCount - childCount);
     setProcessingFee(_processingFee);
     setTotalAmount(_subTotal + _processingFee);
-  }, [adultCount, childCount, adultPrice, childPrice]);
+  }, [adultCount, childCount, adultPrice, childPrice, remainingSeats]);
 
   useEffect(() => {
     if (packages?.limit && allBookingsForSelectedDate) {
@@ -230,24 +233,24 @@ export default function Calendars({ packages }: { packages: IPackage }) {
               value={selectedDate}
               className="react-calender"
               tileDisabled={(date) =>
-                // events.find(
-                //   (event: any) =>
-                //     new Date(event.date).getDate() === date.date.getDate()
-                // )?.title === 14 ||
-                {
-                  console.log(date.date, 567);
-                  return (
-                    !packages?.active_days?.includes(
-                      date.date
-                        .toLocaleString("en-US", { weekday: "long" })
-                        .toLocaleLowerCase()
-                    ) ||
-                    convertDateToCompare(date.date) <
-                      new Date(packages?.start_date) ||
-                    convertDateToCompare(date.date) >
-                      new Date(packages?.end_date)
-                  );
-                }
+              // events.find(
+              //   (event: any) =>
+              //     new Date(event.date).getDate() === date.date.getDate()
+              // )?.title === 14 ||
+              {
+                console.log(date.date, 567);
+                return (
+                  !packages?.active_days?.includes(
+                    date.date
+                      .toLocaleString("en-US", { weekday: "long" })
+                      .toLocaleLowerCase()
+                  ) ||
+                  convertDateToCompare(date.date) <
+                  new Date(packages?.start_date) ||
+                  convertDateToCompare(date.date) >
+                  new Date(packages?.end_date)
+                );
+              }
               }
             />
 
@@ -314,8 +317,8 @@ export default function Calendars({ packages }: { packages: IPackage }) {
                       ? (setChildGuestId(item.id) as any)
                       : (setAdultGuestId(item.id) as any)) &
                     (item.name === "Child"
-                      ? setChildCount(childCount + 1)
-                      : (setAdultCount(adultCount + 1) as any))
+                      ? setChildCount(currentRemainingSeats > 0 ? childCount + 1 : childCount)
+                      : (setAdultCount(currentRemainingSeats > 0 ? adultCount + 1 : adultCount) as any))
                   }
                 >
                   <FaPlus />
@@ -387,7 +390,7 @@ export default function Calendars({ packages }: { packages: IPackage }) {
               <p className="text-xl font-medium">
                 <span className="text-sm">$</span>
                 {subTotal.toFixed(2)}
-                {}
+                { }
               </p>
             </div>
 

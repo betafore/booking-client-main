@@ -4,13 +4,14 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
 const PaymentSuccess = () => {
-    const searchParams = useSearchParams();
-    const orderId = searchParams.get("trnOrderNumber");
-    const transactionDate = searchParams.get("trnDate");
+  const searchParams = useSearchParams();
+  const isTransactionApproved = searchParams.get("trnApproved");
+  const orderId = searchParams.get("trnOrderNumber");
+  const transactionDate = searchParams.get("trnDate");
 
-    const { data: bookingData } = useGetBookingQuery({
-        order_number: orderId,
-      }) as any;
+  const { data: bookingData } = useGetBookingQuery({
+    order_number: orderId,
+  }) as any;
 
   const orderDetails = bookingData ? bookingData?.data : {};
 
@@ -48,7 +49,7 @@ const PaymentSuccess = () => {
               <strong>Order number:</strong> #{orderDetails?.order_number}
             </p>
             <p>
-              <strong>Booking Package:</strong> 
+              <strong>Booking Package:</strong>
               {' '}{orderDetails?.package?.name} {orderDetails?.Sub_Package ? `(${orderDetails?.Sub_Package?.name})` : null}
             </p>
             <p>
