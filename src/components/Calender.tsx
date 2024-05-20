@@ -172,7 +172,6 @@ export default function Calendars({ packages }: { packages: IPackage }) {
       childCount * (childPrice ?? 0) + adultCount * (adultPrice ?? 0);
     const _processingFee = _subTotal * 0.0385;
     setSubTotal(_subTotal);
-    console.log(remainingSeats, adultCount, childCount, 1234);
     setCurrentRemainingSeats(remainingSeats - adultCount - childCount);
     setProcessingFee(_processingFee);
     setTotalAmount(_subTotal + _processingFee);
@@ -238,7 +237,6 @@ export default function Calendars({ packages }: { packages: IPackage }) {
               //     new Date(event.date).getDate() === date.date.getDate()
               // )?.title === 14 ||
               {
-                console.log(date.date, 567);
                 return (
                   !packages?.active_days?.includes(
                     date.date
