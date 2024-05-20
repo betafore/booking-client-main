@@ -4,6 +4,7 @@ import ToCollapsible from "@/components/ToCollapsed";
 import {
   useAddBookingMutation,
   useGetAllBookingOfAnIndividualDayQuery,
+  useGetBookingDetailsByDateQuery,
 } from "@/redux/features/booking/bookingApiSlice";
 import { useGetGuestQuery } from "@/redux/features/guest/guestApiSlice";
 import {
@@ -41,6 +42,7 @@ export default function Calendars({ packages }: { packages: IPackage }) {
   const [toggleDate, setToggleData] = useState(false);
   const [remainingSeats, setRemainingSeats] = useState(0);
   const [currentRemainingSeats, setCurrentRemainingSeats] = useState(0);
+  const [selectedDayIsAlreadyBooked, setSelectedDayIsAlreadyBooked] = useState(false);
   const [location_id, setLocationId] = useState({
     start_point_id: "",
     end_point_id: "",
@@ -70,6 +72,15 @@ export default function Calendars({ packages }: { packages: IPackage }) {
     const formattedDate = `${year}-${month}-${day}`;
     return formattedDate;
   };
+
+  const convertDateToCompare = (dateString: Date) => {
+    return new Date(convertDateToYYYYMMDD(dateString));
+  };
+
+  const { data: bookingDetailsOfSelectedDate, refetch } = useGetBookingDetailsByDateQuery(
+    { date: convertDateToYYYYMMDD(selectedDate) },
+    { skip: !selectedDate }
+  );
 
   const { data: allBookingsForSelectedDate } =
     useGetAllBookingOfAnIndividualDayQuery({
@@ -155,14 +166,9 @@ export default function Calendars({ packages }: { packages: IPackage }) {
       setUserInfo({});
       setIsPaymentLoading(false);
     } catch (error) {
-      console.log(error);
       setIsPaymentLoading(false);
     }
     setIsPaymentLoading(false);
-  };
-
-  const convertDateToCompare = (dateString: Date) => {
-    return new Date(convertDateToYYYYMMDD(dateString));
   };
 
   useEffect(() => {
@@ -171,6 +177,7 @@ export default function Calendars({ packages }: { packages: IPackage }) {
       const _subTotal = packages?.price;
       const processingFee = packages?.price * 0.0385;
       setSubTotal(_subTotal);
+      setCurrentRemainingSeats(packages?.limit);
       setProcessingFee(processingFee);
       setTotalAmount(_subTotal + processingFee);
     } else {
@@ -185,10 +192,28 @@ export default function Calendars({ packages }: { packages: IPackage }) {
   }, [adultCount, childCount, adultPrice, childPrice, remainingSeats, selectedDate]);
 
   useEffect(() => {
-    if (packages?.limit && allBookingsForSelectedDate) {
-      setRemainingSeats(packages?.limit - allBookingsForSelectedDate?.data || 0);
+    if (packages?.limit) {
+      setRemainingSeats(selectedDayIsAlreadyBooked ? 0 : packages?.limit - allBookingsForSelectedDate?.data || 0);
     }
-  }, [packages, allBookingsForSelectedDate]);
+  }, [packages, allBookingsForSelectedDate, selectedDayIsAlreadyBooked]);
+
+
+  useEffect(() => {
+    if (selectedDate) {
+      refetch();
+    }
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (bookingDetailsOfSelectedDate) {
+      const isDifferentTypeBookingExist = (bookingDetailsOfSelectedDate as any)?.data?.find((booking: any) => booking?.package?.is_private === !packages?.is_private)
+      if (isDifferentTypeBookingExist) {
+        setSelectedDayIsAlreadyBooked(true);
+      } else {
+        setSelectedDayIsAlreadyBooked(false);
+      }
+    }
+  }, [bookingDetailsOfSelectedDate]);
 
   return (
     <div className="row justify-center">
@@ -263,7 +288,11 @@ export default function Calendars({ packages }: { packages: IPackage }) {
               <div className="w-full text-center border border-orange-500 text-orange-400 p-2 rounded-xl mt-2">
                 Available Seat(s) {remainingSeats}
               </div>
-            ) : null}
+            ) :
+              <div className="w-full text-center border border-orange-500 text-orange-400 p-2 rounded-xl mt-2">
+                No Seat Available
+              </div>
+            }
 
             {/* {events.find(
               (event: any) =>

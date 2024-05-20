@@ -7,16 +7,29 @@ const bookingSliceTag = api.enhanceEndpoints({
 const bookingApiSlice = bookingSliceTag.injectEndpoints({
   endpoints: (builder: any) => ({
     getBooking: builder.query({
-      query: (arg: {order_number: string}) => `booking?order_number=${arg.order_number}`,
+      query: (arg: { order_number: string }) =>
+        `booking?order_number=${arg.order_number}`,
       providesTags: ["Booking"],
     }),
     getAllBookingOfAnIndividualDay: builder.query({
-      query: (arg: {date: string, package_id: string, Sub_Package_id: string}) => `booking/all-count?date=${arg.date}&package_id=${arg.package_id}&Sub_Package_id=${arg.Sub_Package_id}`,
+      query: (arg: {
+        date: string;
+        package_id: string;
+        Sub_Package_id: string;
+      }) =>
+        `booking/all-count?date=${arg.date}&package_id=${arg.package_id}&Sub_Package_id=${arg.Sub_Package_id}`,
       providesTags: ["Booking"],
-      invalidatesTags: (toggleDate: boolean) => [{type: "Booking", toggleDate}],
+      invalidatesTags: (toggleDate: boolean) => [
+        { type: "Booking", toggleDate },
+      ],
+    }),
+    getBookingDetailsByDate: builder.query({
+      query: (arg: { date: string }) =>
+        `booking/details-by-date?date=${arg.date}`,
+      providesTags: ["Booking"],
     }),
     updateBooking: builder.mutation({
-      query: (arg: {payload: any, orderId: string}) => ({
+      query: (arg: { payload: any; orderId: string }) => ({
         url: `booking/${arg?.orderId}`,
         method: "PUT",
         body: arg.payload,
@@ -36,4 +49,10 @@ const bookingApiSlice = bookingSliceTag.injectEndpoints({
   overrideExisting: true,
 });
 
-export const { useGetBookingQuery, useGetAllBookingOfAnIndividualDayQuery, useUpdateBookingMutation, useAddBookingMutation } = bookingApiSlice;
+export const {
+  useGetBookingQuery,
+  useGetAllBookingOfAnIndividualDayQuery,
+  useGetBookingDetailsByDateQuery,
+  useUpdateBookingMutation,
+  useAddBookingMutation,
+} = bookingApiSlice;
