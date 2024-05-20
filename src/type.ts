@@ -14,5 +14,6 @@ export interface IPackage {
   end_date: string;
   active_days: string[];
   limit: number;
+  is_private: boolean;
   child_packages?: ISubPackage[];
 }

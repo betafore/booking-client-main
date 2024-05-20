@@ -166,14 +166,23 @@ export default function Calendars({ packages }: { packages: IPackage }) {
   };
 
   useEffect(() => {
-    const _subTotal =
-      childCount * (childPrice ?? 0) + adultCount * (adultPrice ?? 0);
-    const _processingFee = _subTotal * 0.0385;
-    setSubTotal(_subTotal);
-    setCurrentRemainingSeats(remainingSeats - adultCount - childCount);
-    setProcessingFee(_processingFee);
-    setTotalAmount(_subTotal + _processingFee);
-  }, [adultCount, childCount, adultPrice, childPrice, remainingSeats]);
+    if (!selectedDate) return;
+    if (packages?.is_private) {
+      const _subTotal = packages?.price;
+      const processingFee = packages?.price * 0.0385;
+      setSubTotal(_subTotal);
+      setProcessingFee(processingFee);
+      setTotalAmount(_subTotal + processingFee);
+    } else {
+      const _subTotal =
+        childCount * (childPrice ?? 0) + adultCount * (adultPrice ?? 0);
+      const _processingFee = _subTotal * 0.0385;
+      setSubTotal(_subTotal);
+      setCurrentRemainingSeats(remainingSeats - adultCount - childCount);
+      setProcessingFee(_processingFee);
+      setTotalAmount(_subTotal + _processingFee);
+    }
+  }, [adultCount, childCount, adultPrice, childPrice, remainingSeats, selectedDate]);
 
   useEffect(() => {
     if (packages?.limit && allBookingsForSelectedDate) {
