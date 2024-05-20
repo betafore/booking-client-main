@@ -36,6 +36,7 @@ const days = [
 const PackageAddForm = () => {
   const [selected, setSelected] = useState<string[]>([]);
   const [active, setActive] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false);
   const [packages, setPackages] = useState<Partial<IPackage>>({
     name: "",
     description: "",
@@ -73,6 +74,7 @@ const PackageAddForm = () => {
       };
     }),
     active: active,
+    is_private: isPrivate,
   };
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -218,21 +220,35 @@ const PackageAddForm = () => {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="col-12 mb-4 flex  items-center">
-        {/* End Date */}
-        <LabelField htmlFor="active">Active </LabelField>
-        <input
-          className="ml-2 cursor-pointer"
-          checked={active}
-          {...register("checkbox")}
-          type="checkbox"
-          onChange={() => setActive(!active)}
-          id="active"
-        />
-        <InputFieldError
-          type={errors.limit?.type as string}
-          message_1="End Date is required!"
-        />
+      <div className="row">
+        <div className="col-4 mb-4 flex items-center">
+          {/* End Date */}
+          <LabelField htmlFor="active">Active </LabelField>
+          <input
+            className="ml-2 mb-1 cursor-pointer"
+            checked={active}
+            {...register("checkbox")}
+            type="checkbox"
+            onChange={() => setActive(!active)}
+            id="active"
+          />
+          <InputFieldError
+            type={errors.limit?.type as string}
+            message_1="End Date is required!"
+          />
+        </div>
+        <div className="col-4 mb-4 flex items-center">
+          {/* End Date */}
+          <LabelField htmlFor="is_private">Private </LabelField>
+          <input
+            className="ml-2 mb-1 cursor-pointer"
+            checked={isPrivate}
+            {...register("checkbox")}
+            type="checkbox"
+            onChange={() => setIsPrivate(!isPrivate)}
+            id="is_private"
+          />
+        </div>
       </div>
       <Button>Submit</Button>
     </form>

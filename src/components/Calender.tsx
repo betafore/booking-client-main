@@ -130,8 +130,6 @@ export default function Calendars({ packages }: { packages: IPackage }) {
     return errors;
   };
 
-  console.log(getSubPackages, 123);
-
   const handleBooking = async () => {
     const errors = handleValidityCheck();
     if (Object.keys(errors).length !== 0) {

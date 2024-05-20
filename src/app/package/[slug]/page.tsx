@@ -41,7 +41,7 @@ export default async function Single({ params }: { params: any }) {
   const filterData = regularData.frontmatter.packages.find(
     (item: any) => item.title.toLowerCase() === data?.data?.name.toLowerCase()
   );
-  console.log(filterData);
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
       {/* <Hero /> */}
