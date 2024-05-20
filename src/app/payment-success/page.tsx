@@ -1,17 +1,44 @@
 "use client";
-import { useGetBookingQuery } from "@/redux/features/booking/bookingApiSlice";
+import {
+  useGetBookingQuery,
+  useUpdateBookingMutation,
+} from "@/redux/features/booking/bookingApiSlice";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { useRouter } from "next/router";
+import { Suspense, use, useEffect } from "react";
 
 const PaymentSuccess = () => {
+  const { push } = useRouter();
   const searchParams = useSearchParams();
   const isTransactionApproved = searchParams.get("trnApproved");
   const orderId = searchParams.get("trnOrderNumber");
   const transactionDate = searchParams.get("trnDate");
+  const [updateBooking] = useUpdateBookingMutation();
 
   const { data: bookingData } = useGetBookingQuery({
     order_number: orderId,
   }) as any;
+
+  const updateBookingStatus = async () => {
+    const data = {
+      payload: {
+        status: isTransactionApproved ? "SUCCESS" : "FAILED",
+      },
+      orderId,
+    };
+
+    return (await updateBooking(data)) as any;
+  };
+
+  useEffect(() => {
+    console.log(isTransactionApproved, typeof isTransactionApproved, 123);
+    if (isTransactionApproved === "0" || isTransactionApproved === "1") {
+      updateBookingStatus();
+    }
+    if (isTransactionApproved === "0") {
+      push("/");
+    }
+  }, [isTransactionApproved]);
 
   const orderDetails = bookingData ? bookingData?.data : {};
 
@@ -49,8 +76,10 @@ const PaymentSuccess = () => {
               <strong>Order number:</strong> #{orderDetails?.order_number}
             </p>
             <p>
-              <strong>Booking Package:</strong>
-              {' '}{orderDetails?.package?.name} {orderDetails?.Sub_Package ? `(${orderDetails?.Sub_Package?.name})` : null}
+              <strong>Booking Package:</strong> {orderDetails?.package?.name}{" "}
+              {orderDetails?.Sub_Package
+                ? `(${orderDetails?.Sub_Package?.name})`
+                : null}
             </p>
             <p>
               <strong>Total seat:</strong> {orderDetails?.total_guests}
@@ -65,7 +94,10 @@ const PaymentSuccess = () => {
               <strong>Transaction date:</strong> {transactionDate}
             </p>
           </div>
-          <button className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-300">
+          <button
+            className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-300"
+            onClick={() => push("/")}
+          >
             Go to Home
           </button>
         </div>

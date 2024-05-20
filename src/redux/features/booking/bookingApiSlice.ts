@@ -15,6 +15,14 @@ const bookingApiSlice = bookingSliceTag.injectEndpoints({
       providesTags: ["Booking"],
       invalidatesTags: (toggleDate: boolean) => [{type: "Booking", toggleDate}],
     }),
+    updateBooking: builder.mutation({
+      query: (arg: {payload: any, orderId: string}) => ({
+        url: `booking/${arg?.orderId}`,
+        method: "PUT",
+        body: arg.payload,
+      }),
+      invalidatesTags: ["Booking"],
+    }),
     addBooking: builder.mutation({
       query: (data: any) => ({
         url: `booking`,
@@ -28,4 +36,4 @@ const bookingApiSlice = bookingSliceTag.injectEndpoints({
   overrideExisting: true,
 });
 
-export const { useGetBookingQuery, useGetAllBookingOfAnIndividualDayQuery, useAddBookingMutation } = bookingApiSlice;
+export const { useGetBookingQuery, useGetAllBookingOfAnIndividualDayQuery, useUpdateBookingMutation, useAddBookingMutation } = bookingApiSlice;
